@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/material_register.css">
+  <title>Metal Place</title>
+</head>
+
+<body>
+  <!-- 登録画面 -->
+
+<main>
+  <!-- ナビゲーションエリア -->
+    <header class="site-header">
+      <h1 class="site-logo">METAL PLACE</h1>
+          <ul class="nav__menu">
+              <li class="nav__menu__item"><a href="MP_material_register.html">材料登録</a></li>
+              <li class="nav__menu__item"><a href="MP_list.html">在庫リスト</a></li>
+              <li class="nav__menu__item"><a href="MP_rfq_list.html">見積リスト</a></li>
+              <li class="nav__menu__item"><a href="">設定</a></li>
+              <li class="nav__menu__item"><a href="MP_contact.html">お問い合わせ</a></li>
+          </ul>
+   </header>
+  <h2 class="mate_regi">材料登録</h2>
+  <!-- サプライヤー/ユーザー切り替え -->
+  <section class="select_zone">
+    <div class="sup_user"><p class="theme">見積/在庫</p>
+     <button class="supplier inquiry" value="inquiry">見積</button> 
+     <button class="supplier stock" value="stock">在庫</button>
+    </div>
+    <div class="sup_user"><p class="theme">リピート/スポット</p>
+      <button class="style repeat" value="repeat">リピート</button> 
+      <button class="style spot" value="spot">スポット</button>
+     </div>
+    <div class="sup_user"><p class="theme">材料特性</p>
+      <button class="kindof general" value="general">汎用材</button> 
+      <button class="kindof end" value="end">端材</button>
+      <button class="kindof special" value="special">特殊材</button>
+     </div>
+  </section>
+
+  <!-- 登録エリア -->
+  <section class="register">
+    <ul class="register_material">
+      <li class="select_list">品種<input class="select_input item" placeholder="(例)鋼板/コイル/丸棒"></li>
+      <li class="select_list">鋼種<input  class="select_input kind" placeholder="(例)SS400"></li>
+      <li class="select_list">数量<div class="quantity_select"><input  class="select_input quantity" placeholder="(例)100"><select><option>kg</option><option>本</option><option>枚</option></select></div></li>
+      <li class="select_list">縦長さ<div class="len_select"><input  class="select_input len" placeholder="(例)4000"><select><option>mm</option><option>m</option><option>coil</option></select></div></li>
+      <li class="select_list">横長さ<div class="width_select"><input  class="select_input width" placeholder="(例)1000"><select><option>mm</option><option>m</option></select></div></li>
+      <li class="select_list">厚さ<div class="thick_select"><input  class="select_input thick" placeholder="(例)3"><select><option>mm</option><option>m</option></select></div></li>
+      <li class="select_list">場所<input  class="select_input place" placeholder="(例)東京都千代田区"></li>
+      <li class="select_list">単価<div class="price_select"><input  class="select_input price" placeholder="100"><select><option>円/kg</option><option>ドル/MT</option></select></div></li>
+      <li class="select_list">図面<label class="input_type">ファイルを選択する<input name="file" type="file" class="select_input file_upload"></label></li>
+    </ul>
+    <!-- 画像投影エリア -->
+    <div class="imgs_area">写真をアップロード
+      <img class="imgs">
+    </div>
+    <ul>AI結果
+      <li class="ai_result">縦長さ</li>
+      <li class="ai_result">横長さ</li>
+      <li class="ai_result">厚さ</li>
+    </ul>
+  </section>
+  <section class="regi_button">
+    <button class="register_button">登録</button>
+  </section>
+
+    <!-- 登録後ポップアップ -->
+    <form class="form_regi" name="login_form" hidden >
+      <div class="login_form_top">
+        <h1>登録完了</h1>
+      </div>
+      <div class="login_form_btm">
+        <button class="close">閉じる</button>
+      </div>
+    </form>
+    <!-- 未入力ポップアップ -->
+    <form class="form_ban" name="login_form" hidden >
+      <div class="login_form_top">
+      <h1>入力項目が足りていません！！</h1>
+      </div>
+      <div class="login_form_btm">
+        <button class="close">閉じる</button>
+      </div>
+    </form>
+</main>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+  import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved }
+      from "https://cdnjs.cloudflare.com/ajax/libs/firebase/9.15.0/firebase-database.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "",
+    authDomain: "metal-trial.firebaseapp.com",
+    databaseURL: "https://metal-trial-default-rtdb.firebaseio.com",
+    projectId: "metal-trial",
+    storageBucket: "metal-trial.appspot.com",
+    messagingSenderId: "111277777807",
+    appId: "1:111277777807:web:c0cd1d622675d873e161fa"
+  };
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);//Real Time DBに接続
+  const dbRef = ref(db,"material");//Realtime DB
+
+  //片方のボタンが押されたら、片方に色をつける
+  $(".supplier").on("click",function(){
+    $(this).toggleClass("active");
+  })
+  $(".style").on("click",function(){
+    $(this).toggleClass("active");
+  })
+  $(".kindof").on("click",function(){
+    $(this).toggleClass("active");
+  })
+
+  
+  
+  // let keyBox = [];
+  // onChildAdded(dbRef,function(data){
+  //   keyBox.push(data.key);
+  //   console.log(keyBox)
+  // })
+      // const i = $(".inquiry").val() 
+      // console.log(i)
+      // const b = $(".repeat").val() 
+      // console.log(b)
+      // const e = $(".general").val() 
+      // console.log(e)
+      // const w = $(".item").val() 
+      // console.log(w)
+      // const l = $(".kind").val() 
+      // console.log(l)
+      // const x = $(".quantity").val() 
+      // console.log(x)
+      // const q = $(".len").val() 
+      // console.log(q)
+      // const u = $(".quantity").val() 
+      // console.log(u)
+      // const s = $(".len").val() 
+      // console.log(s)
+
+
+  $(".register_button").on("click",function(){
+      const src = $(".imgs").attr("src") ;
+      const i= $(".inquiry").val();
+      const b= $(".repeat").val();
+      const e= $(".general").val();
+      const w= $(".item").val();
+      const l= $(".kind").val();
+      const x= $(".quantity").val();
+      const q= $(".len").val();
+      const u= $(".width").val();
+      const s= $(".thick").val();
+      const p= $(".place").val();
+      const m= $(".price").val();
+    if(i !="" && b !="" && e!="" && w!="" && l!="" && x!="" && q!="" && u!="" && s!="" && p!=""){
+      if($(".inquiry").hasClass("active") && $(".repeat").hasClass("active") && $(".general").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".inquiry").val(),
+                          rpe_spo:$(".repeat").val(),
+                          shape:$(".general").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+                }
+                else if($(".inquiry").hasClass("active") && $(".repeat").hasClass("active") && $(".end").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".inquiry").val(),
+                          rpe_spo:$(".repeat").val(),
+                          shape:$(".end").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("2");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+                }
+                else if($(".inquiry").hasClass("active") && $(".repeat").hasClass("active") && $(".special").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".inquiry").val(),
+                          rpe_spo:$(".repeat").val(),
+                          shape:$(".special").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("3");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+                }
+          else if($(".inquiry").hasClass("active") && $(".spot").hasClass("active") && $(".general").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".inquiry").val(),
+                          rpe_spo:$(".spot").val(),
+                          shape:$(".general").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("4");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+              }
+              else if($(".inquiry").hasClass("active") && $(".spot").hasClass("active") && $(".end").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".inquiry").val(),
+                          rpe_spo:$(".spot").val(),
+                          shape:$(".end").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("5");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+              }
+              else if($(".inquiry").hasClass("active") && $(".spot").hasClass("active") && $(".special").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".inquiry").val(),
+                          rpe_spo:$(".spot").val(),
+                          shape:$(".special").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("6");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+              }
+      else if($(".stock").hasClass("active") && $(".repeat").hasClass("active") && $(".general").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".stock").val(),
+                          rpe_spo:$(".repeat").val(),
+                          shape:$(".general").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("7");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+                  }
+                  else if($(".stock").hasClass("active") && $(".repeat").hasClass("active") && $(".end").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".stock").val(),
+                          rpe_spo:$(".repeat").val(),
+                          shape:$(".end").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("8");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+                  }
+                  else if($(".stock").hasClass("active") && $(".repeat").hasClass("active") && $(".special").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".stock").val(),
+                          rpe_spo:$(".repeat").val(),
+                          shape:$(".special").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("9");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+                  }
+                  else if($(".stock").hasClass("active") && $(".spot").hasClass("active") && $(".general").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".stock").val(),
+                          rpe_spo:$(".spot").val(),
+                          shape:$(".general").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("10");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+                  }
+                  else if($(".stock").hasClass("active") && $(".spot").hasClass("active") && $(".end").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".stock").val(),
+                          rpe_spo:$(".spot").val(),
+                          shape:$(".end").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("11");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+                  }
+                  else if($(".stock").hasClass("active") && $(".spot").hasClass("active") && $(".special").hasClass("active")){
+                          const msg = {
+                          inq_sto:$(".stock").val(),
+                          rpe_spo:$(".spot").val(),
+                          shape:$(".special").val(),
+                          item: $(".item").val(),
+                          kind: $(".kind").val(),
+                          quantity: $(".quantity").val(),
+                          len: $(".len").val(),
+                          width: $(".width").val(),
+                          thick: $(".thick").val(),
+                          place: $(".place").val(),
+                          price: $(".price").val(),
+                          imgs: src
+                          }
+                          const newPostRef = push(dbRef);
+                          console.log("12");
+                          set(newPostRef,msg);
+                          $(".item",".kind",".quantity",".len",".width",".pass").val("");
+                          $(".form_regi").slideDown();
+                  }
+                }
+
+else{
+      /////////入力項目が足りないときの判定
+  $(".form_ban").slideDown();
+}}         
+)
+//クリックボタン分が別で代入される
+      // const msg = {
+      // inq_sto:"",
+      // rpe_spo:"",
+      // shape:"",
+      // item: $(".item").val(),
+      // kind: $(".kind").val(),
+      // quantity: $(".quantity").val(),
+      // len: $(".len").val(),
+      // width: $(".width").val(),
+      // thick: $(".thick").val(),
+      // }
+      // const newPostRef = push(dbRef);
+      // console.log(newPostRef);
+      // set(newPostRef,msg);
+      // $(".item",".kind",".quantity",".len",".width",".pass").val("");
+
+      // //クリックボタンの変数登録
+      // if($(".inquiry").hasClass("active")){
+      // let inq_sto = $(".inquiry").val();
+      // ////////////////////
+      // const msg = {
+      //   ask: (inq_sto)
+      // }
+      // const newPostRef = push(dbRef);
+      // set(newPostRef,msg);
+      // /////////////////////
+      // }else{
+      // let inq_sto = $(".stock").val();
+      // const msg = {
+      //   ask: (inq_sto)
+      // }
+      // const newPostRef = push(dbRef);
+      // set(newPostRef,msg);
+      // }
+      // if($(".repeat").hasClass("active")){
+      // let rep_spo = $(".repeat").val();
+      // ////////////////////
+      // const msg = {
+      //   condition: (rep_spo)
+      // }
+      // ////////////////////
+      // }else{
+      // let rep_spo = $(".spot").val();
+      // ////////////////////
+      // const msg = {
+      //   condition: (rep_spo)
+      // }
+      // ////////////////////
+      // }
+      // if($(".general").hasClass("active")){
+      // let shape = $(".general").val();
+      // ////////////////////
+      // const msg = {
+      //   status: (shape)
+      // }
+      // ////////////////////
+      // }else if($(".end").hasClass("active")){
+      // let shape = $(".end").val();;
+      // ////////////////////
+      // const msg = {
+      //   status: (shape)
+      // }
+      // ////////////////////
+      // }else{
+      // let shape = $(".special").val();
+      // ////////////////////
+      // const msg = {
+      //   status: (shape)
+      // }
+      // ////////////////////
+      // }
+      // $(".form_regi").slideDown();
+      // })
+
+
+//ファイルアップロード時に表示する
+$(function() {
+    $(".file_upload").on("change", function(e) {
+        // 1枚だけ表示する
+        let file = e.target.files[0];
+        // ファイルリーダー作成
+        let fileReader = new FileReader();
+        fileReader.onload = function() {
+            // Data URIを取得
+            let dataUri = this.result;
+            // img要素に表示
+            $(".imgs").attr('src', dataUri);
+        }
+        // ファイルをData URIとして読み込む
+        fileReader.readAsDataURL(file);
+    });
+})
+
+
+</script>
+  
+</body>

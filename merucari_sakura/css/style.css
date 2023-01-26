@@ -1,0 +1,86 @@
+/* aタグ編集 */
+a{
+  text-decoration: none;
+  color: black;
+}
+/* header */
+header{
+  background-color: white;
+  width: 100%;
+  margin: 2% 0 2% 0;
+}
+.site_logo{
+  font-size: 40px;
+  margin-left: 3%;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+.head{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+}
+.nav{
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: 1%;
+  width: 45%;
+  height: 10%;
+}
+.nav_item{
+  margin-right: 2%;
+  font-size: 16px;
+  width: 18%;
+  text-align: center;
+}
+.bar{
+  border-bottom-style: solid;
+  border-width: 1px;
+  border-color: lightgray;
+}
+.bar_item{
+  width: 40%;
+  display: flex;
+  flex: wrap;
+  justify-content: space-evenly;
+  margin: 2% 3% 0 2%;
+}
+/* 出品ボタン */
+
+/* footer */
+footer{
+  background-color: lightgray;
+  height: 150px;
+}
+.footer_info{
+  margin: 2% 2% 2% 2%;
+  padding-top: 2%;
+}
+.footer_title{
+  margin-bottom: 1%;
+}
+/* bode */
+body{
+  background-color: white;
+}
+
+/* 個別シート用 */
+li{
+  list-style: none;
+}
+
+.sell_list{
+  margin: 1% 1% 1% 1%;
+  width: 20%;
+  height: 10%;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  border-radius: 5px;
+}
+.item_list{
+  font-size: 13px;
+  margin: 2% 2% 2% 2% ;
+  text-align: right;
+}
+
