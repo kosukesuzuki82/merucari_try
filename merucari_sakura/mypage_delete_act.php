@@ -19,6 +19,7 @@ $name = $_SESSION["name"];
 $company = $_SESSION["company"];
 $marc_num = $_GET["marc_num"];
 //データベース接続
+//データベース接続
 try {
 	$db_name = "kgs_merucari";    //データベース名
 	$db_id   = "kgs";      //アカウント名

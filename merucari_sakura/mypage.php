@@ -39,33 +39,62 @@ if(!isset($_SESSION["chk_ssid"]) ||
 				<li class="nav_item release"><a href="main_rfq.php">引合</a></li>
 			</ul>
 		</div>
+		<div style="display: flex; flex-wrap:wrap; justify-content:space-between;">
 		<p style="margin:2% 0 0 3%;"><?= $_SESSION["name"]?>さん マイページ</p>
+		<input style="margin:2% 3% 0 0;" type="text" placeholder="検索">
+		</div>
+		
 		<div class="bar">
 			<ul class="bar_item">
-
-				<li>売りだしリスト</li>
-				<li>買いたいリスト</li>
+				<li name="sell" class="sell">売りだしリスト</li>
+				<li name="buy" class="buy">買いたいリスト</li>
 			</ul>
 		</div>
 	</header>
-    <main>
+    <main style="display:flex; flex-wrap:wrap; margin: 0 5% 0 5%; text-align:center;">
 			<?php
 			//idからデータを抽出する
 			//データベース接続
-			try {
-				$db_name = "kgs_merucari";    //データベース名
-				$db_id   = "kgs";      //アカウント名
-				$db_pw   = "kosuke82";      //パスワード：XAMPPはパスワードなしMAMPのパスワードはroot
-				$db_host = "mysql57.kgs.sakura.ne.jp"; //DBホスト
-				$db_port = "3306"; //XAMPPの管理画面からport番号確認
-				$pdo = new PDO('mysql:dbname=' . $db_name . ';charset=utf8;host=' . $db_host.';port='.$db_port.'', $db_id, $db_pw);
-			}catch(PDOException $e){
-			exit('DbConnectError:'.$e->getMessage());
-			}
+//データベース接続
+try {
+	$db_name = "kgs_merucari";    //データベース名
+	$db_id   = "kgs";      //アカウント名
+	$db_pw   = "kosuke82";      //パスワード：XAMPPはパスワードなしMAMPのパスワードはroot
+	$db_host = "mysql57.kgs.sakura.ne.jp"; //DBホスト
+	$db_port = "3306"; //XAMPPの管理画面からport番号確認
+	$pdo = new PDO('mysql:dbname=' . $db_name . ';charset=utf8;host=' . $db_host.';port='.$db_port.'', $db_id, $db_pw);
+}catch(PDOException $e){
+ exit('DbConnectError:'.$e->getMessage());
+ }
+				//DB登録から抽出→カテゴリー・形状データ全て
+				$stmt = $pdo->prepare("SELECT * FROM category");
+				$status = $stmt->execute();
+				if($status==false){
+					$error = $stmt->errorInfo();
+					exit("ErrorQuery:".$error[2]);
+				}else{
+					$row_category = $stmt->fetch();
+				}
+				$category = $row_category["category_name"];
+
+				$stmt = $pdo->prepare("SELECT * FROM shape");
+				$status = $stmt->execute();
+				$view ="";
+				if($status==false){
+					$error = $stmt->errorInfo();
+					exit("ErrorQuery:".$error[2]);
+				}else{
+					$row_shape = $stmt->fetch();
+				}
+				$shape = $row_shape["shape_name"];
+				
+
+				
 			//分岐処理を設ける？→売りたい、買いたいでリストを分ける///////////////////////
 			// SQL文(売りたいリスト)
 				//DB登録から抽出
-				$stmt = $pdo->prepare('SELECT * FROM marc_table');// category,item_name,shape,length,width,thick_diameter,net_width,net_height,net_depth,img,place,price,mil_sheet,quantity 
+				// $stmt = $pdo->prepare('SELECT * FROM marc_table');// category,item_name,shape,length,width,thick_diameter,net_width,net_height,net_depth,img,place,price,mil_sheet,quantity 
+				$stmt = $pdo->prepare("SELECT * FROM marc_table INNER JOIN shape ON marc_table.shape = shape.shape_id INNER JOIN category ON marc_table.category = category.category_id WHERE '$id' = r_id");
 				$status = $stmt->execute();
 				$view ="";
 				if($status==false){
@@ -77,11 +106,11 @@ if(!isset($_SESSION["chk_ssid"]) ||
 					  $view .='<li style="position: relative;"><img src="img/<';
 					  $view .= $row["img"]."</li>";
 					  $view .='<li class="item_list">';
-					  $view .= $row["category"]."</li>";
+					  $view .= $row["category_name"]."</li>";
 					  $view .='<li class="item_list">';
 					  $view .= $row["item_name"].'</li>';
 					  $view .='<li class="item_list">';
-					  $view .=$row["shape"].'</li>';
+					  $view .=$row["shape_name"].'</li>';
 					  $view .='<li class="item_list">';
 					  $view .=$row["thick_diameter"]."×".$row["width"]."×".$row["length"].'</li>';
 					  $view .='<li class="item_list">';
@@ -89,13 +118,15 @@ if(!isset($_SESSION["chk_ssid"]) ||
 					  $view .='<li class="item_list">';
 					  $view .=$row["place"].'</li>';
 					  $view .='<form method="get" action="mypage_change.php">';
+					  $view .='<div style="text-align:center;">';
 					  $view .='<a href="mypage_change.php?marc_num='.$row["marc_num"].'">[編集]</a><a href="mypage_delete_act.php?marc_num='.$row["marc_num"].'">[削除]</a>';
+					  $view .='</div>';					 
 					  $view .='<input type="hidden" name="category" value="';
-					  $view .=$row["category"].">";
+					  $view .=$row["category_name"].">";
 					  $view .='<input type="hidden" name="item_name" value="';
 					  $view .=$row["item_name"].">";
 					  $view .='<input type="hidden" name="shape" value="';
-					  $view .=$row["shape"].">";
+					  $view .=$row["shape_name"].">";
 					  $view .='<input type="hidden" name="thick_diameter" value="';
 					  $view .=$row["thick_diameter"].">";
 					  $view .='<input type="hidden" name="width" value="';
@@ -118,8 +149,9 @@ if(!isset($_SESSION["chk_ssid"]) ||
 					  $view .=$row["mil_sheet"].">";
 					  $view .='<input type="hidden" name="img" value="';
 					  $view .=$row["img"].">";
+					  $view .='<input type="hidden" name="img" value="';
+					  $view .=$row["marc_num"].">";
 					  $view .='</form>';
-
 					  $view .='<form method="post" action="mypage_delete.php">';
 					//   $view .='<input type="hidden" name="category" value="';
 					//   $view .= $row["category"].">";
@@ -150,8 +182,6 @@ if(!isset($_SESSION["chk_ssid"]) ||
 					//   $view .='<input type="hidden" name="img" value="';
 					//   $view .=$row["img"].">";
 					  $view .='</form>';
-					  $view .= '<ul>';
-
 					  $view .='</div>';
 					}
 					//セッション維持
@@ -159,6 +189,7 @@ if(!isset($_SESSION["chk_ssid"]) ||
 					$_SESSION["name"] = $name;
 					$_SESSION["id"] = $id;
 					$_SESSION["cus_num"] = $cus_num;
+					$_SESSION["marc_num"] = $row["marc_num"];
 				}
 				?>
 	<!-- リストの数だけ表示する -->

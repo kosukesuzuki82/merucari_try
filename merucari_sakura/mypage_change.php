@@ -74,7 +74,8 @@ try {
  exit('DbConnectError:'.$e->getMessage());
  }
 	//DB登録から抽出
-	$stmt = $pdo->prepare("SELECT category,item_name,shape,length,width,thick_diameter,net_width,net_height,net_depth,img,place,price,mil_sheet,quantity FROM marc_table WHERE marc_num = $marc_num");
+	// $stmt = $pdo->prepare("SELECT category,item_name,shape,length,width,thick_diameter,net_width,net_height,net_depth,img,place,price,mil_sheet,quantity FROM marc_table WHERE marc_num = $marc_num");
+	$stmt = $pdo->prepare("SELECT * FROM marc_table INNER JOIN shape ON marc_table.shape = shape.shape_id INNER JOIN category ON marc_table.category = category.category_id WHERE marc_num = $marc_num");
 	$status = $stmt->execute();
 	$view ="";
 	if($status==false){
@@ -93,10 +94,11 @@ try {
 	        <img class="imgs" style="width:30%;">
 			<form method="post" action="mypage_change_act.php" style="margin: 0 0 1% 10%;width:40%;">
 				<ul>
-					<li style="display: flex;justify-content:space-between;">カテゴリー*<select name="category" style=" width:62.5%;"><option><?=$row["category"]?></option><option>一般構造用圧延鋼材</option><option>溶接構造用圧延鋼材</option><option>みがき棒鋼</option><option>PC鋼棒</option><option>建築構造用圧延鋼材</option><option>自動車構造用熱間圧延鋼板</option><option>熱間圧延軟鋼板</option><option>冷間圧延鋼板</option><option>ボイラ及び圧力容器用炭素鋼板</option><option>配管用炭素鋼鋼管</option><option>ボイラ・熱交換器用炭素鋼鋼管</option><option>ピアノ線材</option><option>冷間圧造用炭素鋼線材</option><option>機械構造用炭素鋼</option><option>マンガン鋼</option><option>マンガンクロム鋼</option><option>クロム鋼</option><option>クロムモリブデン鋼</option><option>ニッケルクロム鋼</option><option>ニッケルクロムモリブデン鋼</option><option>アルミニウムクロムモリブデン鋼</option><option>高温用合金鋼ボルト材</option><option>ステンレス鋼</option><option>耐熱鋼</option><option>超合金</option><option>炭素工具鋼</option><option>高速度工具鋼</option><option>合金工具鋼</option><option>ばね鋼</option><option>快削鋼</option><option>軸受鋼</option>
+				    <input type="hidden" value="<?=$marc_num?>" name="marc_num">
+					<li style="display: flex;justify-content:space-between;">カテゴリー*<select name="category" style=" width:62.5%;"><option><?=$row["category_name"]?></option><option>一般構造用圧延鋼材</option><option>溶接構造用圧延鋼材</option><option>みがき棒鋼</option><option>PC鋼棒</option><option>建築構造用圧延鋼材</option><option>自動車構造用熱間圧延鋼板</option><option>熱間圧延軟鋼板</option><option>冷間圧延鋼板</option><option>ボイラ及び圧力容器用炭素鋼板</option><option>配管用炭素鋼鋼管</option><option>ボイラ・熱交換器用炭素鋼鋼管</option><option>ピアノ線材</option><option>冷間圧造用炭素鋼線材</option><option>機械構造用炭素鋼</option><option>マンガン鋼</option><option>マンガンクロム鋼</option><option>クロム鋼</option><option>クロムモリブデン鋼</option><option>ニッケルクロム鋼</option><option>ニッケルクロムモリブデン鋼</option><option>アルミニウムクロムモリブデン鋼</option><option>高温用合金鋼ボルト材</option><option>ステンレス鋼</option><option>耐熱鋼</option><option>超合金</option><option>炭素工具鋼</option><option>高速度工具鋼</option><option>合金工具鋼</option><option>ばね鋼</option><option>快削鋼</option><option>軸受鋼</option>
 					</select></li>
 					<li style="display: flex;justify-content:space-between;">鋼種別*<input type="text" name="item_name" style="width:60%;" value="<?=$row["item_name"]?>"></li>
-					<li style="display: flex;justify-content:space-between;">形状*<select name="shape" style=" width:62.5%;"><option><?=$row["shape"]?></option><option>鋼板</option><option>コイル</option><option>丸鋼管</option><option>角鋼管</option><option>丸棒</option><option>角棒</option><option>アングル</option><option>チャンネル</option><option>H形鋼</option><option>線材コイル</option><option> Wire</option><option>継手</option>
+					<li style="display: flex;justify-content:space-between;">形状*<select name="shape" style=" width:62.5%;"><option><?=$row["shape_name"]?></option><option>鋼板</option><option>コイル</option><option>丸鋼管</option><option>角鋼管</option><option>丸棒</option><option>角棒</option><option>アングル</option><option>チャンネル</option><option>H形鋼</option><option>線材コイル</option><option> Wire</option><option>継手</option>
 					</select></li>
 					<li style="display: flex;justify-content:space-between;">長さ*<input type="text" name="length" style="width:60%;" value="<?=$row["length"]?>"></li>
 					<li style="display: flex;justify-content:space-between;">幅*<input type="text" name="width" style="width:60%;" value="<?=$row["width"]?>"></li>

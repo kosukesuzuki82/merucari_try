@@ -70,8 +70,8 @@ li{
 }
 
 .sell_list{
-  margin: 1% 1% 1% 1%;
-  width: 20%;
+  margin: 1% 2% 1% 2%;
+  width: 19%;
   height: 10%;
   border-style: solid;
   border-color: black;
@@ -84,3 +84,11 @@ li{
   text-align: right;
 }
 
+/* sell/buyリスト */
+.sell{
+  /* border-style: solid;
+  border-color: black;
+  border-width: 2px;
+  border-radius: 5px;
+  background-color: white; */
+}

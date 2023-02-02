@@ -18,6 +18,7 @@ $id = $_SESSION["id"];
 $name = $_SESSION["name"];
 $company = $_SESSION["company"];
 //form分
+// $image = $_FILES["img"]["name"];
 $category = $_POST["category"];
 $item_name = $_POST["item_name"];
 $shape = $_POST["shape"];
@@ -39,7 +40,20 @@ $price = intval($price_str);
 $quantity_str = $_POST["quantity"];//int変換
 $quantity = intval($quantity_str);
 $mil_sheet = $_POST["mil_sheet"];
-$img = $_POST["img"];
+$img = $_FILES["img"]["name"];
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//ファイルアップロード処理
+// $upload = "img/";
+// if(move_uploaded_file($_FILES['img']['tmp_name'],$upload."$image")){
+// 	//upload完了
+// }else{
+// 	echo "Upload failed";
+// 	echo $_FILES["img"]["error"];
+// }
+////////////////////////////////////////////////////////////////////////
+
+
 //データベース接続
 try {
 	$db_name = "kgs_merucari";    //データベース名
@@ -51,13 +65,38 @@ try {
 }catch(PDOException $e){
  exit('DbConnectError:'.$e->getMessage());
  }
+//////////////////////////カテゴリー・形状のデータID取得
+	//DB登録から抽出
+	$stmt = $pdo->prepare("SELECT * FROM category WHERE category_name = '$category'");
+	$status = $stmt->execute();
+	if($status==false){
+		$error = $stmt->errorInfo();
+		exit("ErrorQuery:".$error[2]);
+	}else{
+		$row = $stmt->fetch();
+	}
+	$category_id = $row["category_id"];
+
+	//DB登録から抽出
+	$stmt = $pdo->prepare("SELECT * FROM shape WHERE shape_name = '$shape'");
+	$status = $stmt->execute();
+	if($status==false){
+		$error = $stmt->errorInfo();
+		exit("ErrorQuery:".$error[2]);
+	}else{
+		$row = $stmt->fetch();
+	}
+	$shape_id = $row["shape_id"];
+
+
+//////////////////////////データ登録
 //データSQLを作成
-$sql = "INSERT INTO marc_table(category,item_name,shape,length,width,thick_diameter,net_width,net_height,net_depth,img,place,mil_sheet,r_id,company,price,quantity,cus_num)
+$sql = "INSERT INTO marc_table (category,item_name,shape,length,width,thick_diameter,net_width,net_height,net_depth,img,place,mil_sheet,r_id,company,price,quantity,cus_num)
         VALUES(:category,:item_name,:shape,:length,:width,:thick_diameter,:net_width,:net_height,:net_depth,:img,:place,:mil_sheet,:r_id,:company,:price,:quantity,:cus_num)";
 $stmt = $pdo->prepare($sql);
-$stmt->bindValue(':category',$category,PDO::PARAM_STR);
+$stmt->bindValue(':category',$category_id,PDO::PARAM_INT);
 $stmt->bindValue(':item_name',$item_name,PDO::PARAM_STR);
-$stmt->bindValue(':shape',$shape,PDO::PARAM_STR);
+$stmt->bindValue(':shape',$shape_id,PDO::PARAM_INT);
 $stmt->bindValue(':length',$length,PDO::PARAM_INT);
 $stmt->bindValue(':width',$width,PDO::PARAM_INT);
 $stmt->bindValue(':thick_diameter',$thick_diameter,PDO::PARAM_INT);
@@ -73,6 +112,12 @@ $stmt->bindValue(':price',$price,PDO::PARAM_INT);
 $stmt->bindValue(':quantity',$quantity,PDO::PARAM_INT);
 $stmt->bindValue(':cus_num',$cus_num,PDO::PARAM_INT);
 $status = $stmt->execute();
+//採番されたAuto Incrementの値取得
+$last_id_str = $pdo->lastInsertId();
+$last_id = intval($last_id_str);
+
+
+
 //データ登録処理後
 if($status==false){
 	//SQLにエラーがある場合
@@ -84,6 +129,9 @@ if($status==false){
 	$_SESSION["name"] = $name;
 	$_SESSION["id"] = $id;
 	$_SESSION["cus_num"] = $cus_num;
+	$_SESSION["shape"] = $shape;
+	$_SESSION["category"] = $category;
+	$_SESSION["marc_num"] =$last_id;
 	//処理が終わると飛ぶサイトを指定
 	 header("Location: main_regi_confirm.php");
 	 exit;

@@ -14,6 +14,8 @@ session_start();
 $id = $_SESSION["id"];
 $name = $_SESSION["name"];
 $company = $_SESSION["company"];
+$marc_num =$_SESSION["marc_num"];
+
 ?>
 
   <header>
@@ -49,7 +51,7 @@ try {
  exit('DbConnectError:'.$e->getMessage());
  }
 	//DB登録から抽出
-	$stmt = $pdo->prepare("SELECT category,item_name,shape,length,width,thick_diameter,net_width,net_height,net_depth,img,place,price,mil_sheet,quantity FROM rfq_table");
+	$stmt = $pdo->prepare("SELECT category,item_name,shape,length,width,thick_diameter,net_width,net_height,net_depth,img,place,price,mil_sheet,quantity FROM rfq_table WHERE $marc_num = marc_num");
 	$status = $stmt->execute();
 	$view ="";
 	if($status==false){
@@ -62,13 +64,40 @@ try {
 		$_SESSION["name"] = $name;
 		$_SESSION["id"] = $id;
 	}
+	$shape_name = $_SESSION["shape"];
+	$shape_str = $row["shape"];///shape idがメインテーブルより入る
+	$shape = intval($shape_str);
+	$category_name = $_SESSION["category"];
+	$category_str = $row["category"];///category idがメインテーブルより入る
+	$category = intval($category_str);
+
+	$stmt = $pdo->prepare("SELECT * FROM category WHERE category_id = $category");
+	$status = $stmt->execute();
+	if($status==false){
+		$error = $stmt->errorInfo();
+		exit("ErrorQuery:".$error[2]);
+	}else{
+		$row_category = $stmt->fetch();
+	}
+	// $category = $row_category["category_name"];
+
+	$stmt = $pdo->prepare("SELECT * FROM shape WHERE shape_id = $shape");
+	$status = $stmt->execute();
+	$view ="";
+	if($status==false){
+		$error = $stmt->errorInfo();
+		exit("ErrorQuery:".$error[2]);
+	}else{
+		$row_shape = $stmt->fetch();
+	}
+	// $shape = $row_shape["shape_name"];
     ?>
 	<img class="imgs" style="width:30%;" src="img/<?=$row["img"]?>">
 	<form method="post" action="home.php" style="width: 40%;">
 		<ul>
-			<li style="display: flex;justify-content:space-between; margin-bottom:2%;">カテゴリー<p><?=$row["category"]?></p></li>
+			<li style="display: flex;justify-content:space-between; margin-bottom:2%;">カテゴリー<p><?=$category?></p></li>
 			<li style="display: flex;justify-content:space-between; margin-bottom:2%;">鋼種別<p><?=$row["item_name"]?></p></li>
-			<li style="display: flex;justify-content:space-between; margin-bottom:2%;">形状<p><?=$row["shape"]?></p></li>
+			<li style="display: flex;justify-content:space-between; margin-bottom:2%;">形状<p><?=$shape?></p></li>
 			<li style="display: flex;justify-content:space-between; margin-bottom:2%;">サイズ<p><?=$row["thick_diameter"]?>×<?=$row["width"]?>×<?=$row["length"]?></p></li>
 			<li style="display: flex;justify-content:space-between; margin-bottom:2%;">荷姿<p><?=$row["net_height"]?>×<?=$row["net_width"]?>×<?=$row["net_depth"]?></p></li>
 			<li style="display: flex;justify-content:space-between; margin-bottom:2%;">在庫場所<p><?=$row["place"]?></p></li>

@@ -40,6 +40,8 @@ $quantity_str = $_POST["quantity"];//int変換
 $quantity = intval($quantity_str);
 $mil_sheet = $_POST["mil_sheet"];
 $img = $_POST["img"];
+$marc_num_str = $_POST["marc_num"];
+$marc_num = intval($marc_num_str);
 //データベース接続
 try {
 	$db_name = "kgs_merucari";    //データベース名
@@ -52,10 +54,34 @@ try {
  exit('DbConnectError:'.$e->getMessage());
  }
 //データSQLを作成
-$update = $pdo->prepare("UPDATE marc_table SET category=:category,item_name=:item_name,shape=:shape,length=:length,width=:width,thick_diameter=:thick_diameter,net_width=:net_width,net_height=:net_height,net_depth=:net_depth,img=:img,place=:place,mil_sheet=:mil_sheet,price=:price,quantity=:quantity");
-$update->bindValue(':category',$category,PDO::PARAM_STR);
+//変更後のカテゴリーデータを数値型に変換
+$stmt = $pdo->prepare("SELECT * FROM category WHERE category_name = '$category'");
+$status = $stmt->execute();
+$view ="";
+if($status==false){
+	$error = $stmt->errorInfo();
+	exit("ErrorQuery:".$error[2]);
+}else{
+	$row_category = $stmt->fetch();
+}
+//変更後の形状データを数値型に変換
+$stmt = $pdo->prepare("SELECT * FROM shape WHERE shape_name = '$shape'");
+$status = $stmt->execute();
+$view ="";
+if($status==false){
+	$error = $stmt->errorInfo();
+	exit("ErrorQuery:".$error[2]);
+}else{
+	$row_shape = $stmt->fetch();
+}
+$category_id =$row_category["category_id"];
+$shape_id =$row_shape["shape_id"];
+
+
+$update = $pdo->prepare("UPDATE marc_table SET category=:category,item_name=:item_name,shape=:shape,length=:length,width=:width,thick_diameter=:thick_diameter,net_width=:net_width,net_height=:net_height,net_depth=:net_depth,img=:img,place=:place,mil_sheet=:mil_sheet,price=:price,quantity=:quantity WHERE marc_num = $marc_num");
+$update->bindValue(':category',$category_id,PDO::PARAM_INT);
 $update->bindValue(':item_name',$item_name,PDO::PARAM_STR);
-$update->bindValue(':shape',$shape,PDO::PARAM_STR);
+$update->bindValue(':shape',$shape_id,PDO::PARAM_INT);
 $update->bindValue(':length',$length,PDO::PARAM_INT);
 $update->bindValue(':width',$width,PDO::PARAM_INT);
 $update->bindValue(':thick_diameter',$thick_diameter,PDO::PARAM_INT);

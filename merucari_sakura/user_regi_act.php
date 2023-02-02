@@ -4,6 +4,7 @@ $name = $_POST["name"];
 $company = $_POST["company"];
 $id = $_POST["id"];
 $pass = $_POST["pass"];
+$pw =password_hash("$pass",PASSWORD_DEFAULT);
 $flag = $_POST["flag"];
 //データベース接続
 try {
@@ -23,7 +24,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->bindValue(':name',$name,PDO::PARAM_STR);
 $stmt->bindValue(':company',$company,PDO::PARAM_STR);
 $stmt->bindValue(':id',$id,PDO::PARAM_STR);
-$stmt->bindValue(':pass',$pass,PDO::PARAM_STR);
+$stmt->bindValue(':pass',$pw,PDO::PARAM_STR);
 $stmt->bindValue(':flag',$flag,PDO::PARAM_INT);
 $status = $stmt->execute();
 //データ登録処理後

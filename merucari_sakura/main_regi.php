@@ -38,8 +38,8 @@ $company = $_SESSION["company"];
  
   <main>
 	<section style="width:100%;display:flex;justify-content:space-evenly;">
-	        <img class="imgs" style="width:30%;">
-			<form method="post" action="main_regi_act.php" style="margin: 0 0 1% 10%;width:40%;">
+	        <img class="imgs" style="width:30%;height:25%;">
+			<form method="post" action="main_regi_act.php" style="margin: 0 0 1% 10%;width:40%;" enctype="multipart/form-data">
 				<ul>
 					<li style="display: flex;justify-content:space-between;">カテゴリー*<select name="category" style=" width:62.5%;" value="<?$category?>"><option>一般構造用圧延鋼材</option><option>溶接構造用圧延鋼材</option><option>みがき棒鋼</option><option>PC鋼棒</option><option>建築構造用圧延鋼材</option><option>自動車構造用熱間圧延鋼板</option><option>熱間圧延軟鋼板</option><option>冷間圧延鋼板</option><option>ボイラ及び圧力容器用炭素鋼板</option><option>配管用炭素鋼鋼管</option><option>ボイラ・熱交換器用炭素鋼鋼管</option><option>ピアノ線材</option><option>冷間圧造用炭素鋼線材</option><option>機械構造用炭素鋼</option><option>マンガン鋼</option><option>マンガンクロム鋼</option><option>クロム鋼</option><option>クロムモリブデン鋼</option><option>ニッケルクロム鋼</option><option>ニッケルクロムモリブデン鋼</option><option>アルミニウムクロムモリブデン鋼</option><option>高温用合金鋼ボルト材</option><option>ステンレス鋼</option><option>耐熱鋼</option><option>超合金</option><option>炭素工具鋼</option><option>高速度工具鋼</option><option>合金工具鋼</option><option>ばね鋼</option><option>快削鋼</option><option>軸受鋼</option>
 					</select></li>
@@ -57,7 +57,7 @@ $company = $_SESSION["company"];
 					<li style="display: flex;justify-content:space-between;">重量<input type="text" name="quantity" style="width:60%;"></li>
 					<li style="display: flex;justify-content:space-between;">ミルシート*<select name="mil_sheet" style=" width:62.5%;"><option>あり</option><option>なし</option>
 					</select></li>
-					<li style="display: flex;justify-content:space-between;">画像<input class="img_up" type="file" name="img" style="width:62.5%;"></li>
+					<li style="display: flex;justify-content:space-between;">画像<input name="img" class="file_upload" type="file" class="cms-item" style="width:62.5%;"></li>
 					<input type="submit" value="確認" style="width:100%; color:white;background-color:red;margin:2% 0 0 0;">
 				</ul>
 			</form>
@@ -77,10 +77,11 @@ $company = $_SESSION["company"];
 	<div style="text-align:right; margin:3% 2% 1%;">
 	<a href="logout.php">ログアウト</a>
 	</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
 <script>
 //ファイルアップロード時に表示する
 $(function() {
-    $(".img_up").on("change", function(e) {
+    $(".file_upload").on("change", function(e) {
         // 1枚だけ表示する
         let file = e.target.files[0];
         // ファイルリーダー作成
